@@ -61,7 +61,9 @@ async def generate_documents(
         # Check if we have these columns to calculate average
         available_scores = [data[col] for col in score_columns if col in data]
         if available_scores:
-            data['rata_rata_nilai'] = sum(available_scores) / len(available_scores)
+            avg = sum(available_scores) / len(available_scores)
+            # Round to 1 decimal place and change dot to comma
+            data['rata_rata_nilai'] = f"{avg:.1f}".replace('.', ',')
         
         # Add creation date if not present
         if 'tanggal_pembuatan' not in data or pd.isna(data['tanggal_pembuatan']):
