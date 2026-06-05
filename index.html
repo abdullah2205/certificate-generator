@@ -3,59 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificate Generator</title>
+    <title>Document Generator (Cert & Word)</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; }
+        input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+        .hint { font-size: 0.8em; color: #666; }
+    </style>
 </head>
 <body>
-    <h1>Certificate Generator</h1>
-    <form id="certForm">
-        <label>Template Image:</label><br>
-        <input type="file" id="template" accept="image/*" required><br><br>
+    <h1>Document Generator</h1>
+    <p>Upload template (Word .docx atau Gambar) dan data CSV.</p>
+    
+    <form id="docForm">
+        <div class="form-group">
+            <label>Template (Word .docx atau Image):</label>
+            <input type="file" id="template" accept=".docx,image/*" required>
+        </div>
         
-        <label>CSV Data File:</label><br>
-        <input type="file" id="data_file" accept=".csv" required><br><br>
+        <div class="form-group">
+            <label>Data CSV:</label>
+            <input type="file" id="data_file" accept=".csv" required>
+        </div>
+
+        <hr>
+        <h3>Pengaturan Gambar (Hanya jika template berupa Gambar)</h3>
         
-        <label>Font Path (e.g., C:/Windows/Fonts/arial.ttf):</label><br>
-        <input type="text" id="font_path" value="arial.ttf" required><br><br>
+        <div class="form-group">
+            <label>Font Path:</label>
+            <input type="text" id="font_path" value="arial.ttf">
+        </div>
         
-        <label>Font Size:</label><br>
-        <input type="number" id="font_size" value="30"><br><br>
+        <div class="form-group">
+            <label>Font Size:</label>
+            <input type="number" id="font_size" value="30">
+        </div>
         
-        <label>Name X Coordinate:</label><br>
-        <input type="number" id="name_x" value="100"><br><br>
+        <div class="form-group">
+            <label>Name X Coordinate:</label>
+            <input type="number" id="name_x" value="100">
+        </div>
         
-        <label>Name Y Coordinate:</label><br>
-        <input type="number" id="name_y" value="100"><br><br>
+        <div class="form-group">
+            <label>Name Y Coordinate:</label>
+            <input type="number" id="name_y" value="100">
+        </div>
         
-        <button type="submit">Generate & Download</button>
+        <button type="submit">Generate & Download ZIP</button>
     </form>
 
     <script>
-        document.getElementById('certForm').onsubmit = async (e) => {
+        document.getElementById('docForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData();
             formData.append('template', document.getElementById('template').files[0]);
             formData.append('data_file', document.getElementById('data_file').files[0]);
             formData.append('font_path', document.getElementById('font_path').value);
             formData.append('font_size', document.getElementById('font_size').value);
-            formData.append('name_x', document.getElementById('name_x').value);
-            formData.append('name_y', document.getElementById('name_y').value);
+            
+            const nx = document.getElementById('name_x').value;
+            const ny = document.getElementById('name_y').value;
+            if(nx) formData.append('name_x', nx);
+            if(ny) formData.append('name_y', ny);
 
-            const response = await fetch('/generate', {
-                method: 'POST',
-                body: formData
-            });
+            const btn = e.target.querySelector('button');
+            btn.innerText = 'Processing...';
+            btn.disabled = true;
 
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'certificates.zip';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            } else {
-                alert('Error generating certificates');
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'hasil_generate.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                } else {
+                    alert('Error generating documents');
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan: ' + err.message);
+            } finally {
+                btn.innerText = 'Generate & Download ZIP';
+                btn.disabled = false;
             }
         };
     </script>
