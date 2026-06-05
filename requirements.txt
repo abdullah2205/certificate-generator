@@ -5,3 +5,5 @@ pandas
 Pillow
 docxtpl
 openpyxl
+pypdf
+docx2pdf
