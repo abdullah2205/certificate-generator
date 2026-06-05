@@ -7,6 +7,7 @@ from generator import generate_certificate, generate_from_word
 from pypdf import PdfWriter
 from docx2pdf import convert
 import pythoncom
+import re
 
 app = FastAPI()
 
@@ -41,20 +42,23 @@ async def generate_documents(
     with open(data_path, "wb") as buffer:
         buffer.write(await data_file.read())
     
-    # Process data
+    # FIX: Gunakan utf-8-sig untuk membuang karakter tersembunyi (BOM) dari Excel
     if data_file.filename.endswith('.csv'):
-        df = pd.read_csv(data_path)
+        df = pd.read_csv(data_path, encoding='utf-8-sig')
     else:
         df = pd.read_excel(data_path)
     
     df = df.fillna('')
     
+    # Bersihkan nama kolom dari spasi berlebih
+    df.columns = [str(c).strip() for c in df.columns]
+    
     is_word = template.filename.endswith('.docx')
     merger = PdfWriter()
-    temp_pdfs = []
     
     for index, row in df.iterrows():
-        data = {str(k).strip(): (str(v).strip() if pd.notna(v) else "") for k, v in row.to_dict().items()}
+        # Ambil data dan pastikan value tidak ada spasi berlebih
+        data = {str(k).strip(): str(v).strip() for k, v in row.to_dict().items()}
         
         # Scores calculation
         score_columns = [
@@ -69,10 +73,8 @@ async def generate_documents(
             val = data.get(col, "")
             if val != "":
                 try:
-                    clean_val = str(val).replace(',', '.')
-                    available_scores.append(float(clean_val))
-                except (ValueError, TypeError):
-                    pass
+                    available_scores.append(float(str(val).replace(',', '.')))
+                except: pass
                     
         if available_scores:
             avg = sum(available_scores) / len(available_scores)
@@ -94,28 +96,21 @@ async def generate_documents(
         name = data.get('nama', f"doc_{index}")
         
         if is_word:
-            docx_output = os.path.join(OUTPUT_DIR, f"temp_{index}.docx")
-            pdf_output = os.path.join(OUTPUT_DIR, f"temp_{index}.pdf")
-            generate_from_word(template_path, docx_output, data)
-            # Convert Word to PDF (Requires MS Word installed)
-            convert(docx_output, pdf_output)
-            merger.append(pdf_output)
-            temp_pdfs.append(docx_output)
-            temp_pdfs.append(pdf_output)
+            docx_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.docx")
+            pdf_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.pdf")
+            generate_from_word(template_path, docx_temp, data)
+            try:
+                convert(docx_temp, pdf_temp)
+                merger.append(pdf_temp)
+            except Exception as e:
+                print(f"Error: {e}")
         else:
-            pdf_output = os.path.join(OUTPUT_DIR, f"temp_{index}.pdf")
-            coords = {"nama": (name_x or 100, name_y or 100)}
-            generate_certificate(template_path, pdf_output, {"nama": name}, font_path or "arial.ttf", font_size, coords)
-            merger.append(pdf_output)
-            temp_pdfs.append(pdf_output)
+            pdf_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.pdf")
+            generate_certificate(template_path, pdf_temp, {"nama": name}, font_path or "arial.ttf", font_size, {"nama": (name_x or 100, name_y or 100)})
+            merger.append(pdf_temp)
     
     final_pdf_path = os.path.join(OUTPUT_DIR, "semua_surat.pdf")
     merger.write(final_pdf_path)
     merger.close()
-    
-    # Optional: Clean up temp files
-    # for f in temp_pdfs:
-    #     try: os.remove(f)
-    #     except: pass
             
     return FileResponse(final_pdf_path, media_type='application/pdf', filename='semua_surat.pdf')
