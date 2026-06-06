@@ -97,8 +97,8 @@ async def generate_documents(
         except Exception as e:
             print(f"Error converting {name}: {e}")
             
-    final_pdf_path = os.path.join(OUTPUT_DIR, "semua_surat.pdf")
+    final_pdf_path = os.path.join(OUTPUT_DIR, "SKHU_LENGKAP.pdf")
     merger.write(final_pdf_path)
     merger.close()
             
-    return FileResponse(final_pdf_path, media_type='application/pdf', filename='semua_surat.pdf')
+    return FileResponse(final_pdf_path, media_type='application/pdf', filename='SKHU_LENGKAP.pdf')
