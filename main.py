@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 import pandas as pd
 import os
 from datetime import datetime
-from generator import generate_certificate, generate_from_word
+from generator import generate_from_word
 from pypdf import PdfWriter
 from docx2pdf import convert
 import pythoncom
@@ -24,11 +24,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 @app.post("/generate")
 async def generate_documents(
     template: UploadFile = File(...),
-    data_file: UploadFile = File(...),
-    font_path: str = Form(None),
-    font_size: int = Form(30),
-    name_x: int = Form(None),
-    name_y: int = Form(None)
+    data_file: UploadFile = File(...)
 ):
     # Initialize COM for docx2pdf if on Windows
     pythoncom.CoInitialize()
@@ -42,22 +38,18 @@ async def generate_documents(
     with open(data_path, "wb") as buffer:
         buffer.write(await data_file.read())
     
-    # FIX: Gunakan utf-8-sig untuk membuang karakter tersembunyi (BOM) dari Excel
+    # Process data
     if data_file.filename.endswith('.csv'):
         df = pd.read_csv(data_path, encoding='utf-8-sig')
     else:
         df = pd.read_excel(data_path)
     
     df = df.fillna('')
-    
-    # Bersihkan nama kolom dari spasi berlebih
     df.columns = [str(c).strip() for c in df.columns]
     
-    is_word = template.filename.endswith('.docx')
     merger = PdfWriter()
     
     for index, row in df.iterrows():
-        # Ambil data dan pastikan value tidak ada spasi berlebih
         data = {str(k).strip(): str(v).strip() for k, v in row.to_dict().items()}
         
         # Scores calculation
@@ -95,20 +87,16 @@ async def generate_documents(
 
         name = data.get('nama', f"doc_{index}")
         
-        if is_word:
-            docx_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.docx")
-            pdf_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.pdf")
-            generate_from_word(template_path, docx_temp, data)
-            try:
-                convert(docx_temp, pdf_temp)
-                merger.append(pdf_temp)
-            except Exception as e:
-                print(f"Error: {e}")
-        else:
-            pdf_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.pdf")
-            generate_certificate(template_path, pdf_temp, {"nama": name}, font_path or "arial.ttf", font_size, {"nama": (name_x or 100, name_y or 100)})
+        docx_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.docx")
+        pdf_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.pdf")
+        
+        generate_from_word(template_path, docx_temp, data)
+        try:
+            convert(docx_temp, pdf_temp)
             merger.append(pdf_temp)
-    
+        except Exception as e:
+            print(f"Error converting {name}: {e}")
+            
     final_pdf_path = os.path.join(OUTPUT_DIR, "semua_surat.pdf")
     merger.write(final_pdf_path)
     merger.close()
