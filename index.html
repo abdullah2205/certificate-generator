@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,13 +14,13 @@
         button:hover { background: #218838; }
         button:disabled { background: #ccc; cursor: not-allowed; }
         h1 { color: #333; text-align: center; }
-        .hint { font-size: 0.9em; color: #666; margin-top: 5px; }
+        .hint { font-size: 0.85em; color: #666; margin-top: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Generator Surat Kelulusan</h1>
-        <p style="text-align: center;">Upload template Word dan data CSV/Excel untuk membuat PDF gabungan.</p>
+        <p style="text-align: center;">Upload template Word dan data Excel/CSV untuk membuat PDF gabungan.</p>
         
         <form id="docForm">
             <div class="form-group">
@@ -30,26 +30,26 @@
             </div>
             
             <div class="form-group">
-                <label>Data CSV atau Excel:</label>
+                <label>Data Excel atau CSV:</label>
                 <input type="file" id="data_file" accept=".csv,.xlsx,.xls" required>
-                <div class="hint">Pastikan header kolom sesuai dengan placeholder di Word.</div>
+                <div class="hint">Pastikan nama kolom sesuai dengan placeholder di Word.</div>
             </div>
 
-            <button type="submit">Generate PDF Gabungan</button>
+            <button type="submit">GENERATE PDF GABUNGAN</button>
         </form>
     </div>
 
     <script>
         document.getElementById('docForm').onsubmit = async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Sedang Memproses PDF...';
+            btn.disabled = true;
+
             const formData = new FormData();
             formData.append('template', document.getElementById('template').files[0]);
             formData.append('data_file', document.getElementById('data_file').files[0]);
-
-            const btn = e.target.querySelector('button');
-            const originalText = btn.innerText;
-            btn.innerText = 'Sedang Memproses...';
-            btn.disabled = true;
 
             try {
                 const response = await fetch('/generate', {
@@ -67,7 +67,7 @@
                     a.click();
                     a.remove();
                 } else {
-                    alert('Gagal membuat dokumen. Pastikan format file benar dan server berjalan.');
+                    alert('Gagal membuat PDF. Periksa apakah uvicorn berjalan dan format file benar.');
                 }
             } catch (err) {
                 alert('Terjadi kesalahan: ' + err.message);

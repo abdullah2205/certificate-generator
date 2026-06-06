@@ -44,13 +44,16 @@ async def generate_documents(
     else:
         df = pd.read_excel(data_path)
     
+    # Bersihkan data: ganti NaN dengan string kosong, bersihkan nama kolom
     df = df.fillna('')
-    df.columns = [str(c).strip() for c in df.columns]
+    df.columns = [str(c).strip().lower() for c in df.columns]
     
     merger = PdfWriter()
+    temp_files = []
     
     for index, row in df.iterrows():
-        data = {str(k).strip(): str(v).strip() for k, v in row.to_dict().items()}
+        # Konversi baris ke dict dan bersihkan spasi
+        data = {str(k): str(v).strip() for k, v in row.to_dict().items()}
         
         # Scores calculation
         score_columns = [
@@ -70,6 +73,7 @@ async def generate_documents(
                     
         if available_scores:
             avg = sum(available_scores) / len(available_scores)
+            # Hasil rata-rata menggunakan koma (1 digit)
             data['rata_rata_nilai'] = f"{avg:.1f}".replace('.', ',')
         else:
             data['rata_rata_nilai'] = '0,0'
@@ -78,6 +82,7 @@ async def generate_documents(
         if not data.get('tanggal_pembuatan'):
             data['tanggal_pembuatan'] = datetime.now().strftime("%d %B %Y")
 
+        # Penggabungan tempat dan tanggal lahir
         tl = data.get('tempat_lahir', '')
         tgl = data.get('tanggal_lahir', '')
         if tl and tgl:
@@ -87,18 +92,24 @@ async def generate_documents(
 
         name = data.get('nama', f"doc_{index}")
         
+        # Nama file sementara
         docx_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.docx")
         pdf_temp = os.path.join(OUTPUT_DIR, f"temp_{index}.pdf")
         
+        # Generate Word
         generate_from_word(template_path, docx_temp, data)
+        
+        # Konversi Word ke PDF dan gabungkan
         try:
             convert(docx_temp, pdf_temp)
             merger.append(pdf_temp)
+            temp_files.extend([docx_temp, pdf_temp])
         except Exception as e:
-            print(f"Error converting {name}: {e}")
+            print(f"Gagal mengonversi {name}: {e}")
             
-    final_pdf_path = os.path.join(OUTPUT_DIR, "SKHU_LENGKAP.pdf")
+    # Simpan hasil gabungan PDF
+    final_pdf_path = os.path.join(OUTPUT_DIR, "semua_surat.pdf")
     merger.write(final_pdf_path)
     merger.close()
             
-    return FileResponse(final_pdf_path, media_type='application/pdf', filename='SKHU_LENGKAP.pdf')
+    return FileResponse(final_pdf_path, media_type='application/pdf', filename='semua_surat.pdf')
