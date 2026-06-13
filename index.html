@@ -20,13 +20,14 @@
 <body>
     <div class="container">
         <h1>Generator Surat Kelulusan</h1>
-        <p style="text-align: center;">Upload template Word dan data Excel/CSV untuk membuat PDF gabungan.</p>
+        <p style="text-align: center;">Pilih template dan upload data Excel/CSV untuk membuat PDF SKHU.</p>
         
         <form id="docForm">
             <div class="form-group">
-                <label>Template Word (.docx):</label>
-                <input type="file" id="template" accept=".docx" required>
-                <div class="hint">Gunakan placeholder seperti {{ nama }}, {{ rata_rata_nilai }}, dll.</div>
+                <label>Pilih Template:</label>
+                <select id="template" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">Memuat template...</option>
+                </select>
             </div>
             
             <div class="form-group">
@@ -35,11 +36,22 @@
                 <div class="hint">Pastikan nama kolom sesuai dengan placeholder di Word.</div>
             </div>
 
-            <button type="submit">GENERATE PDF GABUNGAN</button>
+            <button type="submit">GENERATE PDF SKHU</button>
         </form>
     </div>
 
     <script>
+        // Fetch templates on load
+        fetch('/templates')
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('template');
+                select.innerHTML = '<option value="">-- Pilih Template --</option>';
+                data.forEach(t => {
+                    select.innerHTML += `<option value="${t}">${t}</option>`;
+                });
+            });
+
         document.getElementById('docForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
@@ -48,7 +60,7 @@
             btn.disabled = true;
 
             const formData = new FormData();
-            formData.append('template', document.getElementById('template').files[0]);
+            formData.append('template_name', document.getElementById('template').value);
             formData.append('data_file', document.getElementById('data_file').files[0]);
 
             try {

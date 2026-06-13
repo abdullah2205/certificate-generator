@@ -7,13 +7,19 @@ from generator import generate_from_word
 from pypdf import PdfWriter
 from docx2pdf import convert
 import pythoncom
-import re
 
 app = FastAPI()
+
+TEMPLATE_DIR = "file"
 
 @app.get("/")
 async def read_index():
     return FileResponse("index.html")
+
+@app.get("/templates")
+async def list_templates():
+    files = [f for f in os.listdir(TEMPLATE_DIR) if f.endswith('.docx')]
+    return files
 
 # Temporary directories
 UPLOAD_DIR = "uploads"
@@ -23,18 +29,15 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 @app.post("/generate")
 async def generate_documents(
-    template: UploadFile = File(...),
+    template_name: str = Form(...),
     data_file: UploadFile = File(...)
 ):
     # Initialize COM for docx2pdf if on Windows
     pythoncom.CoInitialize()
     
-    # Save files
-    template_path = os.path.join(UPLOAD_DIR, template.filename)
+    template_path = os.path.join(TEMPLATE_DIR, template_name)
     data_path = os.path.join(UPLOAD_DIR, data_file.filename)
     
-    with open(template_path, "wb") as buffer:
-        buffer.write(await template.read())
     with open(data_path, "wb") as buffer:
         buffer.write(await data_file.read())
     
