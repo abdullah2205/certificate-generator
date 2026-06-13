@@ -74,15 +74,26 @@
         .cert-stripe-top { height: 12px; background: #1A4FA0; flex-shrink: 0; position: relative; z-index: 25; }
         .cert-stripe-bot { height: 12px; background: #1A4FA0; flex-shrink: 0; position: relative; z-index: 25; }
 
-        /* Background Watermark (Bottom Layer) */
+        /* Background Watermarks (Bottom Layer) */
         .cert-bg-center {
             position: absolute;
             top: 55%; /* Slightly lower to clear title */
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -60%);
             width: 800px;
-            opacity: 0.4;
+            opacity: 0.80;
             z-index: 1; 
+            pointer-events: none;
+        }
+
+        .cert-bg-sw {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -58%);
+            width: 320px;
+            opacity: 0.4; /* Subtle secondary watermark */
+            z-index: 1;
             pointer-events: none;
         }
 
@@ -130,8 +141,9 @@
         .flag-placeholder {
             position: absolute; /* Floating so it doesn't push logos */
             left: 50%;
+            padding-right: 10px; /* Extra space from left logo */
             top: 50%;
-            transform: translate(-50%, -20%); /* Moved higher from -15% to -45% */
+            transform: translate(-50%, -10%); /* Moved higher from -15% to -45% */
             width: 300px; /* Slightly smaller size */
             height: 166px; 
             display: flex;
@@ -353,6 +365,7 @@
 
         <!-- Background layer -->
         <img src="images/bg-silat.png" class="cert-bg-center" alt="Background Silat">
+        <!-- <img src="images/bg-sw.png" class="cert-bg-sw" alt="Background SW"> -->
 
         <!-- Corner Ornaments -->
         <svg class="corner-ornament tl" viewBox="0 0 80 80" fill="none">
