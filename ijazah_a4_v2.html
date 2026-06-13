@@ -52,82 +52,62 @@
 
   .cert-border-outer { 
     position: absolute; 
-    inset: 16px; 
-    border: 2px solid #8B6914; 
+    inset: 12px; 
+    border: 6px double #8B6914; 
     pointer-events: none; 
     z-index: 2; 
   }
   
   .cert-border-inner { 
     position: absolute; 
-    inset: 24px; 
-    border: 0.8px solid #C9A84C; 
+    inset: 26px; 
+    border: 2px solid #C9A84C; 
     pointer-events: none; 
     z-index: 2; 
   }
 
   .corner-ornament { 
     position: absolute; 
-    width: 64px; 
-    height: 64px; 
+    width: 80px; 
+    height: 80px; 
     z-index: 3; 
   }
-  .corner-ornament.tl { top: 9px; left: 9px; }
-  .corner-ornament.tr { top: 9px; right: 9px; transform: scaleX(-1); }
-  .corner-ornament.bl { bottom: 9px; left: 9px; transform: scaleY(-1); }
-  .corner-ornament.br { bottom: 9px; right: 9px; transform: scale(-1,-1); }
+  .corner-ornament.tl { top: 8px; left: 8px; }
+  .corner-ornament.tr { top: 8px; right: 8px; transform: scaleX(-1); }
+  .corner-ornament.bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+  .corner-ornament.br { bottom: 8px; right: 8px; transform: scale(-1,-1); }
 
   .cert-stripe-top { height: 12px; background: #1A4FA0; flex-shrink: 0; }
   .cert-stripe-bot { height: 12px; background: #1A4FA0; flex-shrink: 0; }
 
   .cert-header { 
-    padding: 37px 47px 0 47px; 
+    padding: 47px 47px 0 62px; 
     display: flex; 
     align-items: center; 
     justify-content: space-between; 
+    box-sizing: border-box;
+    width: 100%;
   }
   
   .logo-placeholder {
-    width: 96px; 
-    height: 96px; 
-    border: 2px solid #8B6914; 
-    border-radius: 50%;
+    width: 180px; 
+    height: 180px; 
     display: flex; 
     align-items: center; 
     justify-content: center;
-    font-size: 17px; 
-    color: #1a1a1a; 
-    text-align: center;
-    font-family: 'Cinzel', serif; 
-    letter-spacing: 0.06em; 
-    line-height: 1.3;
-    background: #ffffff; 
-    font-weight: 600; 
+    background: transparent; 
     flex-shrink: 0;
   }
-  
-  .cert-org { text-align: center; flex: 1; padding: 0 21px; }
-  
-  .cert-org-name { 
-    font-family: 'Cinzel', serif; 
-    font-size: 17px; 
-    font-weight: 700; 
-    color: #111111; 
-    letter-spacing: 0.18em; 
-    text-transform: uppercase; 
-    line-height: 1.6; 
-  }
-  
-  .cert-divider-line { 
-    width: 80%; 
-    height: 0.8px; 
-    background: #C9A84C; 
-    margin: 9px auto; 
-  }
 
+  .logo-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
   .cert-title-block { 
     text-align: center; 
-    padding: 35px 47px 8px 47px; 
+    padding: 20px 47px 8px 47px; 
   }
   
   .cert-title-kecil { 
@@ -154,7 +134,7 @@
     align-items: center; 
     justify-content: center; 
     gap: 16px; 
-    margin: 16px 0; 
+    margin: 12px 0; 
   }
   
   .cert-ornament-divider .line { 
@@ -172,7 +152,7 @@
   }
 
   .cert-body { 
-    padding: 11px 60px; 
+    padding: 5px 60px; 
     text-align: center; 
   }
   
@@ -180,7 +160,7 @@
     font-family: 'EB Garamond', serif; 
     font-size: 23px; 
     color: #111111; 
-    line-height: 1.9; 
+    line-height: 1.8; 
     font-style: italic; 
     font-weight: 400; 
   }
@@ -188,8 +168,8 @@
   .cert-intro strong { font-style: normal; font-weight: 700; color: #000000; }
 
   .cert-name-block { 
-    margin: 27px 0 16px; 
-    padding: 19px 0; 
+    margin: 25px 0 10px; 
+    padding: 15px 0; 
     border-top: 1.2px solid #C9A84C; 
     border-bottom: 1.2px solid #C9A84C; 
   }
@@ -211,7 +191,7 @@
     font-weight: 600; 
   }
 
-  .cert-result-block { margin: 21px 0; }
+  .cert-result-block { margin: 15px 0; }
   
   .cert-result-label { 
     font-family: 'Cormorant Garamond', serif; 
@@ -236,18 +216,19 @@
     color: #222222; 
     font-style: italic; 
     text-align: center; 
-    margin: 13px 60px; 
+    margin: 10px 60px; 
     border-top: 0.8px solid #C9A84C; 
-    padding-top: 16px; 
-    line-height: 1.7; 
+    padding-top: 12px; 
+    line-height: 1.6; 
   }
 
   .cert-footer { 
-    padding: 27px 47px 43px 47px; 
+    padding: 0px 60px 49px 60px; 
     display: flex; 
     align-items: flex-end; 
     justify-content: space-between; 
-    gap: 21px; 
+    box-sizing: border-box;
+    width: 100%;
   }
   
   .photo-box { 
@@ -269,7 +250,7 @@
     font-weight: 600; 
   }
   
-  .sig-block { text-align: center; flex: 1; }
+  .sig-block { text-align: center; }
   
   .sig-city-date { 
     font-family: 'Cormorant Garamond', serif; 
@@ -289,6 +270,7 @@
     text-transform: uppercase; 
     line-height: 1.35; 
     min-height: 2.7em; 
+    /* padding-left: 4px; */
   }
   
   .sig-line { 
@@ -346,43 +328,45 @@
     <div class="cert-border-outer"></div>
     <div class="cert-border-inner"></div>
 
-    <svg class="corner-ornament tl" viewBox="0 0 48 48" fill="none">
-      <path d="M6 6 L26 6 L6 26 Z" fill="#C9A84C" opacity="0.4"/>
-      <path d="M6 6 L6 30" stroke="#8B6914" stroke-width="1.5"/>
-      <path d="M6 6 L30 6" stroke="#8B6914" stroke-width="1.5"/>
-      <circle cx="6" cy="6" r="3" fill="#8B6914"/>
+    <svg class="corner-ornament tl" viewBox="0 0 80 80" fill="none">
+      <path d="M4 4 L50 4 M4 4 L4 50" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+      <path d="M12 12 L36 12 M12 12 L12 36" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M4 4 Q30 4 30 30 Q4 30 4 4" fill="#C9A84C" opacity="0.2"/>
+      <circle cx="4" cy="4" r="6" fill="#8B6914"/>
+      <circle cx="4" cy="4" r="3" fill="#C9A84C"/>
     </svg>
-    <svg class="corner-ornament tr" viewBox="0 0 48 48" fill="none">
-      <path d="M6 6 L26 6 L6 26 Z" fill="#C9A84C" opacity="0.4"/>
-      <path d="M6 6 L6 30" stroke="#8B6914" stroke-width="1.5"/>
-      <path d="M6 6 L30 6" stroke="#8B6914" stroke-width="1.5"/>
-      <circle cx="6" cy="6" r="3" fill="#8B6914"/>
+    <svg class="corner-ornament tr" viewBox="0 0 80 80" fill="none">
+      <path d="M4 4 L50 4 M4 4 L4 50" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+      <path d="M12 12 L36 12 M12 12 L12 36" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M4 4 Q30 4 30 30 Q4 30 4 4" fill="#C9A84C" opacity="0.2"/>
+      <circle cx="4" cy="4" r="6" fill="#8B6914"/>
+      <circle cx="4" cy="4" r="3" fill="#C9A84C"/>
     </svg>
-    <svg class="corner-ornament bl" viewBox="0 0 48 48" fill="none">
-      <path d="M6 6 L26 6 L6 26 Z" fill="#C9A84C" opacity="0.4"/>
-      <path d="M6 6 L6 30" stroke="#8B6914" stroke-width="1.5"/>
-      <path d="M6 6 L30 6" stroke="#8B6914" stroke-width="1.5"/>
-      <circle cx="6" cy="6" r="3" fill="#8B6914"/>
+    <svg class="corner-ornament bl" viewBox="0 0 80 80" fill="none">
+      <path d="M4 4 L50 4 M4 4 L4 50" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+      <path d="M12 12 L36 12 M12 12 L12 36" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M4 4 Q30 4 30 30 Q4 30 4 4" fill="#C9A84C" opacity="0.2"/>
+      <circle cx="4" cy="4" r="6" fill="#8B6914"/>
+      <circle cx="4" cy="4" r="3" fill="#C9A84C"/>
     </svg>
-    <svg class="corner-ornament br" viewBox="0 0 48 48" fill="none">
-      <path d="M6 6 L26 6 L6 26 Z" fill="#C9A84C" opacity="0.4"/>
-      <path d="M6 6 L6 30" stroke="#8B6914" stroke-width="1.5"/>
-      <path d="M6 6 L30 6" stroke="#8B6914" stroke-width="1.5"/>
-      <circle cx="6" cy="6" r="3" fill="#8B6914"/>
+    <svg class="corner-ornament br" viewBox="0 0 80 80" fill="none">
+      <path d="M4 4 L50 4 M4 4 L4 50" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+      <path d="M12 12 L36 12 M12 12 L12 36" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M4 4 Q30 4 30 30 Q4 30 4 4" fill="#C9A84C" opacity="0.2"/>
+      <circle cx="4" cy="4" r="6" fill="#8B6914"/>
+      <circle cx="4" cy="4" r="3" fill="#C9A84C"/>
     </svg>
 
     <div class="cert-header">
-      <div class="logo-placeholder">IPSI<br/>—</div>
-      <div class="cert-org">
-        <div class="cert-org-name">Ikatan Pencak Silat Indonesia</div>
-        <div class="cert-divider-line"></div>
-        <div class="cert-org-name" style="font-size:15px; letter-spacing:0.15em;">PS. Satya Wijasena</div>
+      <div class="logo-placeholder">
+        <img src="images/logo-ipsi.png" alt="Logo IPSI">
       </div>
-      <div class="logo-placeholder" style="font-size:15px;">SATYA<br/>WIJASENA</div>
+      <div class="logo-placeholder">
+        <img src="images/logo-sw.png" alt="Logo Satya Wijasena">
+      </div>
     </div>
 
     <div class="cert-title-block">
-      <div class="cert-title-kecil">Surat Keterangan</div>
       <div class="cert-title-besar">IJAZAH</div>
       <div class="cert-ornament-divider">
         <div class="line"></div><div class="diamond"></div><div class="line"></div>
