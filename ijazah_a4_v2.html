@@ -1,4 +1,7 @@
-
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
@@ -12,17 +15,6 @@
     background-color: #f0f2f5; 
     margin: 0; 
     padding: 0; 
-  }
-  
-  .sr-only { 
-    position: absolute; 
-    width: 1px; 
-    height: 1px; 
-    padding: 0; 
-    margin: -1px; 
-    overflow: hidden; 
-    clip: rect(0,0,0,0); 
-    border: 0; 
   }
   
   .cw { 
@@ -55,7 +47,7 @@
     inset: 12px; 
     border: 6px double #8B6914; 
     pointer-events: none; 
-    z-index: 2; 
+    z-index: 20; 
   }
   
   .cert-border-inner { 
@@ -63,22 +55,34 @@
     inset: 26px; 
     border: 2px solid #C9A84C; 
     pointer-events: none; 
-    z-index: 2; 
+    z-index: 20; 
   }
 
   .corner-ornament { 
     position: absolute; 
     width: 80px; 
     height: 80px; 
-    z-index: 3; 
+    z-index: 30; 
   }
   .corner-ornament.tl { top: 8px; left: 8px; }
   .corner-ornament.tr { top: 8px; right: 8px; transform: scaleX(-1); }
   .corner-ornament.bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
   .corner-ornament.br { bottom: 8px; right: 8px; transform: scale(-1,-1); }
 
-  .cert-stripe-top { height: 12px; background: #1A4FA0; flex-shrink: 0; }
-  .cert-stripe-bot { height: 12px; background: #1A4FA0; flex-shrink: 0; }
+  .cert-stripe-top { height: 12px; background: #1A4FA0; flex-shrink: 0; position: relative; z-index: 25; }
+  .cert-stripe-bot { height: 12px; background: #1A4FA0; flex-shrink: 0; position: relative; z-index: 25; }
+
+  /* Background Watermark */
+  .cert-bg-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    opacity: 0.4;
+    z-index: 1; /* Lowest visible z-index */
+    pointer-events: none;
+  }
 
   .cert-header { 
     padding: 47px 47px 0 62px; 
@@ -87,6 +91,8 @@
     justify-content: space-between; 
     box-sizing: border-box;
     width: 100%;
+    position: relative;
+    z-index: 10; /* Above watermark */
   }
   
   .logo-placeholder {
@@ -108,15 +114,8 @@
   .cert-title-block { 
     text-align: center; 
     padding: 20px 47px 8px 47px; 
-  }
-  
-  .cert-title-kecil { 
-    font-family: 'Cormorant Garamond', serif; 
-    font-size: 21px; 
-    font-weight: 600; 
-    color: #1a1a1a; 
-    letter-spacing: 0.28em; 
-    text-transform: uppercase; 
+    position: relative;
+    z-index: 10;
   }
   
   .cert-title-besar { 
@@ -154,6 +153,8 @@
   .cert-body { 
     padding: 5px 60px; 
     text-align: center; 
+    position: relative;
+    z-index: 10;
   }
   
   .cert-intro { 
@@ -210,18 +211,6 @@
     margin: 8px 0; 
   }
 
-  .cert-notes { 
-    font-family: 'EB Garamond', serif; 
-    font-size: 20px; 
-    color: #222222; 
-    font-style: italic; 
-    text-align: center; 
-    margin: 10px 60px; 
-    border-top: 0.8px solid #C9A84C; 
-    padding-top: 12px; 
-    line-height: 1.6; 
-  }
-
   .cert-footer { 
     padding: 0px 60px 49px 60px; 
     display: flex; 
@@ -229,6 +218,8 @@
     justify-content: space-between; 
     box-sizing: border-box;
     width: 100%;
+    position: relative;
+    z-index: 10;
   }
   
   .photo-box { 
@@ -270,7 +261,6 @@
     text-transform: uppercase; 
     line-height: 1.35; 
     min-height: 2.7em; 
-    /* padding-left: 4px; */
   }
   
   .sig-line { 
@@ -321,12 +311,17 @@
     }
   }
 </style>
+</head>
+<body>
 
 <div class="cw">
   <div class="cert">
     <div class="cert-stripe-top"></div>
     <div class="cert-border-outer"></div>
     <div class="cert-border-inner"></div>
+
+    <!-- Background image behind everything else -->
+    <img src="images/bg-silat.png" class="cert-bg-center" alt="Background Silat">
 
     <svg class="corner-ornament tl" viewBox="0 0 80 80" fill="none">
       <path d="M4 4 L50 4 M4 4 L4 50" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
@@ -411,3 +406,6 @@
     <div class="cert-stripe-bot"></div>
   </div>
 </div>
+
+</body>
+</html>
