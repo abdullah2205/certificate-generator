@@ -44,6 +44,27 @@ def convert_html_to_pdf_edge(html_path, pdf_path):
         print(f"Edge selesai tapi file PDF tidak ditemukan di: {pdf_path}")
         raise Exception("Edge gagal membuat file PDF.")
 
+def format_tanggal_indonesia(tgl_val):
+    """Mengubah format tanggal ke DD BULAN YYYY (Indonesian)."""
+    if not tgl_val or str(tgl_val).strip() == "":
+        return ""
+    try:
+        # Jika input adalah datetime object
+        if isinstance(tgl_val, datetime):
+            return tgl_val.strftime("%d %B %Y").upper()
+        
+        # Jika string, coba parse (menangani format timestamp excel juga)
+        tgl_str = str(tgl_val).split(' ')[0] # Ambil bagian tanggal saja jika ada jam
+        formats = ["%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"]
+        for fmt in formats:
+            try:
+                dt = datetime.strptime(tgl_str, fmt)
+                return dt.strftime("%d %B %Y").upper()
+            except: continue
+        return str(tgl_val).upper()
+    except:
+        return str(tgl_val).upper()
+
 # Set locale to Indonesian
 try:
     locale.setlocale(locale.LC_TIME, 'id_ID.UTF-8')
@@ -117,21 +138,39 @@ async def generate_documents(
         # Konversi baris ke dict dan bersihkan spasi
         data = {str(k): str(v).strip() for k, v in row.to_dict().items()}
         
+        # Format Tanggal Lahir jika ada
+        if 'tanggal_lahir' in data:
+            data['tanggal_lahir'] = format_tanggal_indonesia(data['tanggal_lahir'])
+        
         # Add tanggal to data
         data['tanggal_ujian'] = tanggal_ujian_str
         data['tanggal_pengesahan'] = tanggal_pengesahan_str
         
         # Scores calculation
-        score_columns = [
-            'nilai_teori', 'nilai_salam', 'nilai_dasar', 
-            'nilai_kombinasi', 'nilai_jurus', 'nilai_jatuhan', 
-            'nilai_bantingan', 'nilai_serang_bela', 'nilai_senjata', 
-            'nilai_fisik'
-        ]
+        # Mendukung variasi nama kolom (dasar vs gerak_dasar, kombinasi vs gerak_kombinasi)
+        score_mapping = {
+            'nilai_teori': ['nilai_teori', 'teori'],
+            'nilai_salam': ['nilai_salam', 'salam'],
+            'nilai_gerak_dasar': ['nilai_gerak_dasar', 'nilai_dasar', 'dasar'],
+            'nilai_gerak_kombinasi': ['nilai_gerak_kombinasi', 'nilai_kombinasi', 'kombinasi'],
+            'nilai_jurus': ['nilai_jurus', 'jurus'],
+            'nilai_jatuhan': ['nilai_jatuhan', 'jatuhan'],
+            'nilai_bantingan': ['nilai_bantingan', 'bantingan'],
+            'nilai_serang_bela': ['nilai_serang_bela', 'serang_bela', 'sab'],
+            'nilai_senjata': ['nilai_senjata', 'senjata'],
+            'nilai_fisik': ['nilai_fisik', 'fisik']
+        }
         
         available_scores = []
-        for col in score_columns:
-            val = data.get(col, "")
+        for target_col, aliases in score_mapping.items():
+            val = ""
+            for alias in aliases:
+                if data.get(alias):
+                    val = data[alias]
+                    # Pastikan data juga tersedia di target_col agar template Word bisa baca
+                    data[target_col] = val
+                    break
+            
             if val != "":
                 try:
                     available_scores.append(float(str(val).replace(',', '.')))
@@ -226,6 +265,10 @@ async def generate_sertifikat(
             try:
                 # Ambil semua kolom dari baris excel sebagai dictionary
                 row_data = row.to_dict()
+                
+                # Format Tanggal Lahir jika ada di data excel
+                if 'tanggal_lahir' in row_data:
+                    row_data['tanggal_lahir'] = format_tanggal_indonesia(row_data['tanggal_lahir'])
                 
                 # Siapkan data context (gabungkan data form + data excel)
                 context = {
