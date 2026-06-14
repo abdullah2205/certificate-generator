@@ -144,3 +144,14 @@ async def generate_documents(
     response = FileResponse(final_pdf_path, media_type='application/pdf', filename=final_filename)
     response.headers["X-Filename"] = final_filename
     return response
+
+@app.post("/generate-sertifikat")
+async def generate_sertifikat(
+    template_name: str = Form(...),
+    tanggal: str = Form(...),
+    jenis_ujian: str = Form(...),
+    lokasi_ujian: str = Form(...),
+    data_file: UploadFile = File(...)
+):
+    # Placeholder untuk implementasi generate sertifikat
+    return {"message": "Endpoint generate-sertifikat belum diimplementasikan."}
