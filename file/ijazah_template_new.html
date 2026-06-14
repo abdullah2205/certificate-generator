@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sertifikat Ijazah A4</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+        /* Global Print Settings */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            box-sizing: border-box;
+        }
+
+        body { 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        .cw { 
+            background: #f0f2f5; 
+            padding: 40px 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            font-family: 'EB Garamond', Georgia, serif; 
+            min-height: 100vh;
+        }
+        
+        /* A4 Container */
+        .cert {
+            background: #ffffff;
+            width: 210mm;
+            height: 297mm;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        /* Borders & Ornaments */
+        .cert-border-outer { 
+            position: absolute; 
+            inset: 12px; 
+            border: 6px double #8B6914; 
+            pointer-events: none; 
+            z-index: 20; 
+        }
+        
+        .cert-border-inner { 
+            position: absolute; 
+            inset: 26px; 
+            border: 2px solid #C9A84C; 
+            pointer-events: none; 
+            z-index: 20; 
+        }
+
+        .corner-ornament { 
+            position: absolute; 
+            width: 80px; 
+            height: 80px; 
+            z-index: 30; 
+        }
+        .corner-ornament.tl { top: 8px; left: 8px; }
+        .corner-ornament.tr { top: 8px; right: 8px; transform: scaleX(-1); }
+        .corner-ornament.bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+        .corner-ornament.br { bottom: 8px; right: 8px; transform: scale(-1,-1); }
+
+        .cert-stripe-top { height: 12px; background: #1A4FA0; flex-shrink: 0; position: relative; z-index: 25; }
+        .cert-stripe-bot { height: 12px; background: #1A4FA0; flex-shrink: 0; position: relative; z-index: 25; }
+
+        /* Background Watermarks (Bottom Layer) */
+        .cert-bg-center {
+            position: absolute;
+            top: 55%; /* Slightly lower to clear title */
+            left: 50%;
+            transform: translate(-50%, -60%);
+            width: 800px;
+            opacity: 0.80;
+            z-index: 1; 
+            pointer-events: none;
+        }
+
+        .cert-bg-sw {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -58%);
+            width: 320px;
+            opacity: 0.4; /* Subtle secondary watermark */
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Content Blocks (Top Layer) */
+        .cert-header { 
+            padding: 47px 47px 0 62px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo-placeholder {
+            width: 180px; 
+            height: 180px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo-placeholder-ipsi {
+            width: 160px; 
+            height: 160px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-placeholder-ipsi img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .flag-placeholder {
+            position: absolute; /* Floating so it doesn't push logos */
+            left: 50%;
+            padding-right: 10px; /* Extra space from left logo */
+            top: 50%;
+            transform: translate(-50%, -10%); /* Moved higher from -15% to -45% */
+            width: 300px; /* Slightly smaller size */
+            height: 166px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1; /* Behind logos (z-index 10) */
+            opacity: 1; /* 100% Opacity */
+        }
+
+        .flag-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .cert-title-block { 
+            text-align: center; 
+            padding: 20px 47px 8px 47px; 
+            position: relative;
+            z-index: 10;
+        }
+        
+        .cert-title-besar { 
+            font-family: 'Cinzel', serif; 
+            font-size: 65px; 
+            font-weight: 700; 
+            color: #000000; 
+            letter-spacing: 0.14em; 
+            line-height: 1.05; 
+            margin: 8px 0; 
+        }
+        
+        .cert-ornament-divider { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 16px; 
+            margin: 12px 0; 
+        }
+        
+        .cert-ornament-divider .line { 
+            flex: 1; 
+            height: 0.8px; 
+            background: #C9A84C; 
+            max-width: 213px; 
+        }
+        
+        .cert-ornament-divider .diamond { 
+            width: 11px; 
+            height: 11px; 
+            background: #8B6914; 
+            transform: rotate(45deg); 
+        }
+
+        .cert-body { 
+            padding: 5px 60px; 
+            text-align: center; 
+            position: relative;
+            z-index: 10;
+        }
+        
+        .cert-intro { 
+            font-family: 'EB Garamond', serif; 
+            font-size: 25px; 
+            color: #111111; 
+            line-height: 1.8; 
+            font-style: italic; 
+        }
+        
+        .cert-intro strong { font-style: normal; font-weight: 700; color: #000000; }
+
+        .cert-name-block { 
+            margin: 25px 0 10px; 
+            padding: 15px 0; 
+            border-top: 1.2px solid #C9A84C; 
+            border-bottom: 1.2px solid #C9A84C; 
+        }
+        
+        .cert-name { 
+            font-family: 'Cinzel', serif; 
+            font-size: 30px; 
+            font-weight: 700; 
+            color: #000000; 
+            letter-spacing: 0.08em; 
+        }
+        
+        .cert-lahir { 
+            font-family: 'Cormorant Garamond', serif; 
+            font-size: 25px; 
+            color: #222222; 
+            margin-top: 5px; 
+            font-style: italic; 
+            font-weight: 600; 
+        }
+
+        .cert-result-block { margin: 15px 0; }
+        
+        .cert-result-label { 
+            font-family: 'Cormorant Garamond', serif; 
+            font-size: 25px; 
+            font-style: italic; 
+            color: #222222; 
+            font-weight: 600; 
+        }
+        
+        .cert-sabuk { 
+            font-family: 'Cinzel', serif; 
+            font-size: 40px; 
+            font-weight: 700; 
+            color: #0D3580; 
+            letter-spacing: 0.18em; 
+            margin: 8px 0; 
+        }
+
+        .cert-footer { 
+            padding: 0px 60px 30px 60px; 
+            display: flex; 
+            align-items: flex-end; 
+            justify-content: space-between; 
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .photo-box {
+            width: 4cm;
+            height: 6cm;
+            border: 1.2px solid #C9A84C;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 17px;
+            color: #222222;
+            text-align: center;
+            background: #ffffff;
+            letter-spacing: 0.05em;
+            line-height: 1.6;
+            flex-shrink: 0;
+            font-weight: 600; 
+            margin-left: 1cm;
+        }
+        
+        .sig-block { text-align: center; }
+        
+        .sig-city-date { 
+            font-family: 'Cormorant Garamond', serif; 
+            font-size: 20px; 
+            font-style: italic; 
+            color: #222222; 
+            margin-bottom: 13px; 
+            font-weight: 600; 
+        }
+        
+        .sig-role { 
+            font-family: 'Cinzel', serif; 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: #000000; 
+            text-transform: uppercase; 
+            line-height: 1.35; 
+            min-height: 4.1em; /* Optimized for exactly 3 lines */
+        }
+        
+        .sig-line { 
+            width: 120px; 
+            height: 0.8px; 
+            background: #5C3000; 
+            margin: 65px auto 7px;
+        }
+        
+        .sig-name { 
+            font-family: 'EB Garamond', serif; 
+            font-size: 21px; 
+            color: #000000; 
+            font-weight: 800; 
+            min-height: 2.4em; 
+        }
+
+        .spacer { flex: 1; }
+
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+        
+        @media print {
+            body, html {
+                margin: 0;
+                padding: 0;
+                background: #ffffff;
+                width: 210mm;
+                height: 297mm;
+                overflow: hidden;
+            }
+            .cw {
+                padding: 0;
+                margin: 0;
+                background: none;
+                display: block;
+                width: 210mm;
+                height: 297mm;
+            }
+            .cert {
+                box-shadow: none;
+                width: 210mm;
+                height: 297mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cw">
+    <div class="cert">
+        <div class="cert-stripe-top"></div>
+        <div class="cert-border-outer"></div>
+        <div class="cert-border-inner"></div>
+
+        <!-- Background layer -->
+        <img src="images/bg-silat.png" class="cert-bg-center" alt="Background Silat">
+        <!-- <img src="images/bg-sw.png" class="cert-bg-sw" alt="Background SW"> -->
+
+        <!-- Corner Ornaments -->
+        <svg class="corner-ornament tl" viewBox="0 0 80 80" fill="none">
+            <path d="M4 4 L50 4 M4 4 L4 50" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+            <path d="M12 12 L36 12 M12 12 L12 36" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M4 4 Q30 4 30 30 Q4 30 4 4" fill="#C9A84C" opacity="0.2"/>
+            <circle cx="4" cy="4" r="6" fill="#8B6914"/><circle cx="4" cy="4" r="3" fill="#C9A84C"/>
+        </svg>
+        <svg class="corner-ornament tr" viewBox="0 0 80 80" fill="none">
+            <path d="M4 4 L50 4 M4 4 L4 50" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+            <path d="M12 12 L36 12 M12 12 L12 36" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M4 4 Q30 4 30 30 Q4 30 4 4" fill="#C9A84C" opacity="0.2"/>
+            <circle cx="4" cy="4" r="6" fill="#8B6914"/><circle cx="4" cy="4" r="3" fill="#C9A84C"/>
+        </svg>
+        <svg class="corner-ornament bl" viewBox="0 0 80 80" fill="none">
+            <path d="M4 4 L50 4 M4 4 L4 50" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+            <path d="M12 12 L36 12 M12 12 L12 36" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M4 4 Q30 4 30 30 Q4 30 4 4" fill="#C9A84C" opacity="0.2"/>
+            <circle cx="4" cy="4" r="6" fill="#8B6914"/><circle cx="4" cy="4" r="3" fill="#C9A84C"/>
+        </svg>
+        <svg class="corner-ornament br" viewBox="0 0 80 80" fill="none">
+            <path d="M4 4 L50 4 M4 4 L4 50" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+            <path d="M12 12 L36 12 M12 12 L12 36" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M4 4 Q30 4 30 30 Q4 30 4 4" fill="#C9A84C" opacity="0.2"/>
+            <circle cx="4" cy="4" r="6" fill="#8B6914"/><circle cx="4" cy="4" r="3" fill="#C9A84C"/>
+        </svg>
+
+        <!-- Header -->
+        <div class="cert-header">
+            <div class="logo-placeholder-ipsi">
+                <img src="images/logo-ipsi.png" alt="Logo IPSI">
+            </div>
+            <div class="flag-placeholder">
+                <img src="images/bendera2.png" alt="Bendera">
+            </div>
+            <div class="logo-placeholder">
+                <img src="images/logo-sw.png" alt="Logo Satya Wijasena">
+            </div>
+        </div>
+
+        <!-- Title -->
+        <div class="cert-title-block">
+            <div class="cert-title-besar">IJAZAH</div>
+            <div class="cert-ornament-divider">
+                <div class="line"></div><div class="diamond"></div><div class="line"></div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="cert-body">
+            <div class="cert-intro">
+                Berdasarkan hasil <strong>{{ jenis_ujian }}</strong><br/>
+                yang diselenggarakan PS. Satya Wijasena<br/>
+                di <strong>{{ tempat_ujian }}</strong><br/>
+                pada tanggal <strong>{{ tanggal_ujian }}</strong>, menyatakan bahwa:
+            </div>
+            <div class="cert-name-block">
+                <div class="cert-name">{{ nama }}</div>
+                <div class="cert-lahir">Lahir di {{ tempat_lahir }}, {{ tanggal_lahir }}</div>
+            </div>
+            <div class="cert-result-block">
+                <div class="cert-result-label">dinyatakan <em>Lulus</em> dan berhak atas Sabuk Warna:</div>
+                <div class="cert-sabuk">{{ ikat_pinggang_baru }}</div>
+            </div>
+        </div>
+
+         <div class="spacer"></div>
+
+        <div class="cert-footer">
+            <div class="photo-box">Pas Foto<br/>4 × 6 cm</div>
+            <div class="sig-block" style="position: relative;">
+                <div class="sig-city-date">&nbsp;</div>
+                <div class="sig-role">&nbsp;<br/>Ketua Umum<br/>PS. Satya Wijasena</div>
+                <img src="images/raymon.png" alt="Tanda Tangan Raymond" style="position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); width: 120px; height: auto; z-index: 5;">
+                <div class="sig-line"></div>
+                <div class="sig-name">Raymond Hariyanto<br/>&nbsp;</div>
+            </div>
+           <div class="sig-block" style="position: relative;">
+              <div class="sig-city-date">Surabaya, {{ tanggal_pengesahan }}</div>
+              <div class="sig-role">Ketua Panitia<br/>Ujian Kenaikan Tingkat<br/>PS. Satya Wijasena</div>
+              <img src="images/nopal.png" alt="Tanda Tangan Naufal" style="position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); width: 120px; height: auto; z-index: 5;">
+              <div class="sig-line"></div>
+              <div class="sig-name">Muhammad Naufal<br/>Kharisma Renaldy</div>
+          </div>
+        </div>
+
+        <div class="cert-stripe-bot"></div>
+        </div>
+        </div>
+
+        </body>
+        </html>

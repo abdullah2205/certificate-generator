@@ -3,66 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Surat Kelulusan</title>
+    <title>Generator Dokumen Akademik</title>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; line-height: 1.6; background-color: #f4f4f9; }
-        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { background: #28a745; color: white; border: none; padding: 12px 20px; cursor: pointer; border-radius: 4px; width: 100%; font-size: 16px; font-weight: bold; }
-        button:hover { background: #218838; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        h1 { color: #333; text-align: center; }
-        .hint { font-size: 0.85em; color: #666; margin-top: 5px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu-item {
+            margin-bottom: 15px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .menu-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .menu-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+            border-left: 4px solid #ffd700;
+            padding-left: 11px;
+        }
+
+        .menu-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* FORM STYLES */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="file"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .hint {
+            font-size: 13px;
+            color: #999;
+            margin-top: 6px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 13px 24px;
+            cursor: pointer;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* PAGE SECTIONS */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 20px;
+            }
+
+            .menu {
+                display: flex;
+                gap: 10px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Generator Surat Kelulusan</h1>
-        <p style="text-align: center;">Pilih template dan upload data Excel/CSV untuk membuat PDF SKHU.</p>
-        
-        <form id="docForm">
-            <div class="form-group">
-                <label>Pilih Template:</label>
-                <select id="template" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">Memuat template...</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>Tanggal Ujian:</label>
-                <input type="date" id="tanggal_ujian" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-            </div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">📄 DocGen</div>
+        <ul class="menu">
+            <li class="menu-item">
+                <div class="menu-link active" onclick="showPage('sertifikat')">
+                    <span class="menu-icon">🏆</span>
+                    <span>Generate Sertifikat</span>
+                </div>
+            </li>
+            <li class="menu-item">
+                <div class="menu-link" onclick="showPage('skhu')">
+                    <span class="menu-icon">📋</span>
+                    <span>Generate SKHU</span>
+                </div>
+            </li>
+        </ul>
+    </aside>
 
-            <div class="form-group">
-                <label>Tanggal Pengesahan:</label>
-                <input type="date" id="tanggal_pengesahan" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-            </div>
-            
-            <div class="form-group">
-                <label>Data Excel atau CSV:</label>
-                <input type="file" id="data_file" accept=".csv,.xlsx,.xls" required>
-                <div class="hint">Pastikan nama kolom sesuai dengan placeholder di Word.</div>
-            </div>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- HALAMAN GENERATE SERTIFIKAT -->
+        <div id="sertifikat" class="page active">
+            <div class="container">
+                <h1>🏆 Generator Sertifikat</h1>
+                <p class="subtitle">Buat sertifikat otomatis dari template HTML dengan mudah</p>
 
-            <button type="submit">GENERATE PDF SKHU</button>
-        </form>
-    </div>
+                <form id="sertifikatForm">
+                    <div class="form-group">
+                        <label>Pilih Template:</label>
+                        <select id="sertifikat_template" required>
+                            <option value="">Memuat template...</option>
+                        </select>
+                        <div class="hint">Template HTML yang akan digunakan sebagai basis sertifikat</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jenis Ujian:</label>
+                        <input type="text" id="sertifikat_jenis_ujian" placeholder="Contoh: UKT Sabuk Kuning" required>
+                        <div class="hint">Tipe atau nama ujian yang dilaksanakan</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tempat Ujian:</label>
+                        <input type="text" id="sertifikat_tempat_ujian" placeholder="Contoh: GOR Perbasi" required>
+                        <div class="hint">Lokasi di mana ujian dilaksanakan</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tanggal Ujian:</label>
+                        <input type="date" id="sertifikat_tanggal_ujian" required>
+                        <div class="hint">Tanggal pelaksanaan ujian</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tanggal Pengesahan:</label>
+                        <input type="date" id="sertifikat_tanggal_pengesahan" required>
+                        <div class="hint">Tanggal penandatanganan sertifikat</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Data Peserta (CSV/Excel):</label>
+                        <input type="file" id="sertifikat_data" accept=".csv,.xlsx,.xls" required>
+                        <div class="hint">File harus memiliki kolom: nama, tempat_lahir, tanggal_lahir, dll</div>
+                    </div>
+
+                    <button type="submit">GENERATE SEMUA SERTIFIKAT</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- HALAMAN GENERATE SKHU -->
+        <div id="skhu" class="page">
+            <div class="container">
+                <h1>📋 Generator Surat Kelulusan (SKHU)</h1>
+                <p class="subtitle">Buat SKHU otomatis dari template Word dengan data Excel/CSV</p>
+
+                <form id="skhuForm">
+                    <div class="form-group">
+                        <label>Pilih Template:</label>
+                        <select id="skhu_template" required>
+                            <option value="">Memuat template...</option>
+                        </select>
+                        <div class="hint">Template Word SKHU yang akan digunakan</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tanggal Ujian:</label>
+                        <input type="date" id="skhu_tanggal_ujian" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tanggal Pengesahan:</label>
+                        <input type="date" id="skhu_tanggal_pengesahan" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Data Excel atau CSV:</label>
+                        <input type="file" id="skhu_data_file" accept=".csv,.xlsx,.xls" required>
+                        <div class="hint">Pastikan nama kolom sesuai dengan placeholder di Word template</div>
+                    </div>
+
+                    <button type="submit">GENERATE PDF SKHU</button>
+                </form>
+            </div>
+        </div>
+    </main>
 
     <script>
-        // Fetch templates on load
-        fetch('/templates')
-            .then(res => res.json())
-            .then(data => {
-                const select = document.getElementById('template');
-                select.innerHTML = '<option value="">-- Pilih Template --</option>';
-                data.forEach(t => {
-                    select.innerHTML += `<option value="${t}">${t}</option>`;
-                });
-            });
+        // Fungsi untuk menampilkan halaman yang dipilih
+        function showPage(pageName) {
+            // Sembunyikan semua halaman
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
 
-        document.getElementById('docForm').onsubmit = async (e) => {
+            // Tampilkan halaman yang dipilih
+            document.getElementById(pageName).classList.add('active');
+
+            // Update menu aktif
+            const menuLinks = document.querySelectorAll('.menu-link');
+            menuLinks.forEach(link => link.classList.remove('active'));
+            event.target.closest('.menu-link').classList.add('active');
+        }
+
+        // Load templates saat halaman dibuka
+        function loadTemplates() {
+            fetch('/templates')
+                .then(res => res.json())
+                .then(data => {
+                    const sertifikatSelect = document.getElementById('sertifikat_template');
+                    const skhuSelect = document.getElementById('skhu_template');
+
+                    sertifikatSelect.innerHTML = '<option value="">-- Pilih Template HTML --</option>';
+                    skhuSelect.innerHTML = '<option value="">-- Pilih Template Word --</option>';
+
+                    // Isi Sertifikat (hanya HTML)
+                    if (data.html) {
+                        data.html.forEach(t => {
+                            sertifikatSelect.innerHTML += `<option value="${t}">${t}</option>`;
+                        });
+                    }
+
+                    // Isi SKHU (hanya Word)
+                    if (data.word) {
+                        data.word.forEach(t => {
+                            skhuSelect.innerHTML += `<option value="${t}">${t}</option>`;
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.log('Server tidak tersedia. Gunakan template manual.');
+                });
+        }
+
+        // Load templates on page load
+        window.addEventListener('DOMContentLoaded', loadTemplates);
+
+        // FORM SERTIFIKAT
+        document.getElementById('sertifikatForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Sedang Memproses...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('template_name', document.getElementById('sertifikat_template').value);
+            formData.append('jenis_ujian', document.getElementById('sertifikat_jenis_ujian').value);
+            formData.append('tempat_ujian', document.getElementById('sertifikat_tempat_ujian').value);
+            formData.append('tanggal_ujian', document.getElementById('sertifikat_tanggal_ujian').value);
+            formData.append('tanggal_pengesahan', document.getElementById('sertifikat_tanggal_pengesahan').value);
+            formData.append('data_file', document.getElementById('sertifikat_data').files[0]);
+
+            try {
+                const response = await fetch('/generate-sertifikat', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = response.headers.get('X-Filename') || 'Sertifikat.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                } else {
+                    alert('Gagal membuat sertifikat. Periksa format file dan server.');
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan: ' + err.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        // FORM SKHU
+        document.getElementById('skhuForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
             const originalText = btn.innerText;
@@ -70,10 +440,10 @@
             btn.disabled = true;
 
             const formData = new FormData();
-            formData.append('template_name', document.getElementById('template').value);
-            formData.append('tanggal_ujian', document.getElementById('tanggal_ujian').value);
-            formData.append('tanggal_pengesahan', document.getElementById('tanggal_pengesahan').value);
-            formData.append('data_file', document.getElementById('data_file').files[0]);
+            formData.append('template_name', document.getElementById('skhu_template').value);
+            formData.append('tanggal_ujian', document.getElementById('skhu_tanggal_ujian').value);
+            formData.append('tanggal_pengesahan', document.getElementById('skhu_tanggal_pengesahan').value);
+            formData.append('data_file', document.getElementById('skhu_data_file').files[0]);
 
             try {
                 const response = await fetch('/generate', {
@@ -86,11 +456,7 @@
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    
-                    // Safely get filename from response header
-                    const filename = response.headers.get('X-Filename') || 'SKHU_LENGKAP.pdf';
-                    a.download = filename;
-                    
+                    a.download = response.headers.get('X-Filename') || 'SKHU_LENGKAP.pdf';
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
