@@ -257,7 +257,7 @@
         <div id="sertifikat" class="page active">
             <div class="container">
                 <h1>🏆 Generator Sertifikat</h1>
-                <p class="subtitle">Buat sertifikat otomatis dari template Word dengan mudah</p>
+                <p class="subtitle">Buat sertifikat otomatis dari template HTML dengan mudah</p>
 
                 <form id="sertifikatForm">
                     <div class="form-group">
@@ -265,31 +265,37 @@
                         <select id="sertifikat_template" required>
                             <option value="">Memuat template...</option>
                         </select>
-                        <div class="hint">Template Word yang akan digunakan sebagai basis sertifikat</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Tanggal Sertifikat:</label>
-                        <input type="date" id="sertifikat_tanggal" required>
-                        <div class="hint">Tanggal penerbitan sertifikat</div>
+                        <div class="hint">Template HTML yang akan digunakan sebagai basis sertifikat</div>
                     </div>
 
                     <div class="form-group">
                         <label>Jenis Ujian:</label>
-                        <input type="text" id="sertifikat_jenis_ujian" placeholder="Contoh: UTBK, Ujian Nasional, Ujian Komprehensif" required>
+                        <input type="text" id="sertifikat_jenis_ujian" placeholder="Contoh: UKT Sabuk Kuning" required>
                         <div class="hint">Tipe atau nama ujian yang dilaksanakan</div>
                     </div>
 
                     <div class="form-group">
-                        <label>Lokasi Ujian:</label>
-                        <input type="text" id="sertifikat_lokasi" placeholder="Contoh: Jakarta, Ruang A201" required>
-                        <div class="hint">Lokasi di mana ujian/pelatihan dilaksanakan</div>
+                        <label>Tempat Ujian:</label>
+                        <input type="text" id="sertifikat_tempat_ujian" placeholder="Contoh: GOR Perbasi" required>
+                        <div class="hint">Lokasi di mana ujian dilaksanakan</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tanggal Ujian:</label>
+                        <input type="date" id="sertifikat_tanggal_ujian" required>
+                        <div class="hint">Tanggal pelaksanaan ujian</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tanggal Pengesahan:</label>
+                        <input type="date" id="sertifikat_tanggal_pengesahan" required>
+                        <div class="hint">Tanggal penandatanganan sertifikat</div>
                     </div>
 
                     <div class="form-group">
                         <label>Data Peserta (CSV/Excel):</label>
                         <input type="file" id="sertifikat_data" accept=".csv,.xlsx,.xls" required>
-                        <div class="hint">File harus memiliki kolom: nama, pelatihan, tanggal_lulus (atau sesuaikan dengan template)</div>
+                        <div class="hint">File harus memiliki kolom: nama, tempat_lahir, tanggal_lahir, dll</div>
                     </div>
 
                     <button type="submit">GENERATE SEMUA SERTIFIKAT</button>
@@ -358,13 +364,22 @@
                     const sertifikatSelect = document.getElementById('sertifikat_template');
                     const skhuSelect = document.getElementById('skhu_template');
 
-                    sertifikatSelect.innerHTML = '<option value="">-- Pilih Template --</option>';
-                    skhuSelect.innerHTML = '<option value="">-- Pilih Template --</option>';
+                    sertifikatSelect.innerHTML = '<option value="">-- Pilih Template HTML --</option>';
+                    skhuSelect.innerHTML = '<option value="">-- Pilih Template Word --</option>';
 
-                    data.forEach(t => {
-                        sertifikatSelect.innerHTML += `<option value="${t}">${t}</option>`;
-                        skhuSelect.innerHTML += `<option value="${t}">${t}</option>`;
-                    });
+                    // Isi Sertifikat (hanya HTML)
+                    if (data.html) {
+                        data.html.forEach(t => {
+                            sertifikatSelect.innerHTML += `<option value="${t}">${t}</option>`;
+                        });
+                    }
+
+                    // Isi SKHU (hanya Word)
+                    if (data.word) {
+                        data.word.forEach(t => {
+                            skhuSelect.innerHTML += `<option value="${t}">${t}</option>`;
+                        });
+                    }
                 })
                 .catch(err => {
                     console.log('Server tidak tersedia. Gunakan template manual.');
@@ -384,9 +399,10 @@
 
             const formData = new FormData();
             formData.append('template_name', document.getElementById('sertifikat_template').value);
-            formData.append('tanggal', document.getElementById('sertifikat_tanggal').value);
             formData.append('jenis_ujian', document.getElementById('sertifikat_jenis_ujian').value);
-            formData.append('lokasi_ujian', document.getElementById('sertifikat_lokasi').value);
+            formData.append('tempat_ujian', document.getElementById('sertifikat_tempat_ujian').value);
+            formData.append('tanggal_ujian', document.getElementById('sertifikat_tanggal_ujian').value);
+            formData.append('tanggal_pengesahan', document.getElementById('sertifikat_tanggal_pengesahan').value);
             formData.append('data_file', document.getElementById('sertifikat_data').files[0]);
 
             try {
