@@ -88,11 +88,7 @@
                     a.href = url;
                     
                     // Safely get filename from response header
-                    const contentDisposition = response.headers.get('Content-Disposition');
-                    let filename = 'SKHU_LENGKAP.pdf';
-                    if (contentDisposition && contentDisposition.includes('filename=')) {
-                        filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
-                    }
+                    const filename = response.headers.get('X-Filename') || 'SKHU_LENGKAP.pdf';
                     a.download = filename;
                     
                     document.body.appendChild(a);

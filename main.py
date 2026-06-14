@@ -72,7 +72,6 @@ async def generate_documents(
     df.columns = [str(c).strip().lower() for c in df.columns]
     
     merger = PdfWriter()
-    temp_files = []
     
     for index, row in df.iterrows():
         # Konversi baris ke dict dan bersihkan spasi
@@ -130,19 +129,18 @@ async def generate_documents(
         try:
             convert(docx_temp, pdf_temp)
             merger.append(pdf_temp)
-            temp_files.extend([docx_temp, pdf_temp])
         except Exception as e:
             print(f"Gagal mengonversi {name}: {e}")
             
     # Simpan hasil gabungan PDF
-    # Format: Nama Template (Capitalized) - Tanggal Pengesahan.pdf
+    # Format: Nama Template (Capitalized) - Tanggal Ujian.pdf
     base_name = os.path.splitext(template_name)[0]
     formatted_name = base_name.replace('-', ' ').title()
-    final_filename = f"{formatted_name} - {tanggal_pengesahan_str}.pdf"
+    final_filename = f"{formatted_name} - {tanggal_ujian_str}.pdf"
     final_pdf_path = os.path.join(OUTPUT_DIR, final_filename)
     merger.write(final_pdf_path)
     merger.close()
             
-    # Use standard response with filename
-    from fastapi.responses import FileResponse
-    return FileResponse(final_pdf_path, media_type='application/pdf', filename=final_filename)
+    response = FileResponse(final_pdf_path, media_type='application/pdf', filename=final_filename)
+    response.headers["X-Filename"] = final_filename
+    return response
