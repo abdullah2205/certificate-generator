@@ -30,6 +30,9 @@ def convert_html_to_pdf_edge(html_path, pdf_path):
         "--headless",
         "--disable-gpu",
         "--no-sandbox",
+        "--run-all-compositor-stages-before-draw",
+        "--no-pdf-header-footer",      # Menghilangkan teks tanggal/link di pinggir PDF
+        "--virtual-time-budget=2000",  # Memberi waktu 2 detik agar gambar/font selesai render
         f"--print-to-pdf={os.path.abspath(pdf_path)}",
         file_url
     ]
@@ -255,7 +258,11 @@ async def generate_sertifikat(
             df = pd.read_csv(data_path, encoding='utf-8-sig')
         else:
             df = pd.read_excel(data_path)
+        
+        # Bersihkan data: ganti NaN dengan string kosong, bersihkan nama kolom
         df = df.fillna('')
+        df.columns = [str(c).strip().lower() for c in df.columns]
+        print(f"Kolom yang dideteksi di Excel: {list(df.columns)}")
         
         merger = PdfWriter()
         temp_pdfs = []
@@ -264,20 +271,29 @@ async def generate_sertifikat(
         for index, row in df.iterrows():
             try:
                 # Ambil semua kolom dari baris excel sebagai dictionary
-                row_data = row.to_dict()
+                row_data = {str(k): str(v).strip() for k, v in row.to_dict().items()}
                 
-                # Format Tanggal Lahir jika ada di data excel
-                if 'tanggal_lahir' in row_data:
-                    row_data['tanggal_lahir'] = format_tanggal_indonesia(row_data['tanggal_lahir'])
+                # Pastikan field utama ada walaupun nama kolom di excel sedikit berbeda
+                # (Misal: 'Nama ' atau 'NAMA' atau 'nama')
+                nama_val = row_data.get('nama', row_data.get('nama ', ''))
+                tempat_lahir_val = row_data.get('tempat_lahir', row_data.get('tempat lahir', ''))
+                tanggal_lahir_val = row_data.get('tanggal_lahir', row_data.get('tanggal lahir', ''))
+
+                # Format Tanggal Lahir jika ada
+                if tanggal_lahir_val:
+                    tanggal_lahir_val = format_tanggal_indonesia(tanggal_lahir_val)
                 
                 # Siapkan data context (gabungkan data form + data excel)
                 context = {
+                    **row_data,  # Pindahkan ke atas agar tidak menimpa variabel di bawahnya
                     "request": request,
                     "jenis_ujian": jenis_ujian,
                     "tempat_ujian": tempat_ujian,
                     "tanggal_ujian": tanggal_ujian_str,
                     "tanggal_pengesahan": tanggal_pengesahan_str,
-                    **row_data
+                    "nama": nama_val,
+                    "tempat_lahir": tempat_lahir_val,
+                    "tanggal_lahir": tanggal_lahir_val
                 }
                 
                 # Render HTML menggunakan Jinja2
