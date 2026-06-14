@@ -1,61 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificate Generator</title>
+    <title>Generator Surat Kelulusan</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; line-height: 1.6; background-color: #f4f4f9; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background: #28a745; color: white; border: none; padding: 12px 20px; cursor: pointer; border-radius: 4px; width: 100%; font-size: 16px; font-weight: bold; }
+        button:hover { background: #218838; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        h1 { color: #333; text-align: center; }
+        .hint { font-size: 0.85em; color: #666; margin-top: 5px; }
+    </style>
 </head>
 <body>
-    <h1>Certificate Generator</h1>
-    <form id="certForm">
-        <label>Template Image:</label><br>
-        <input type="file" id="template" accept="image/*" required><br><br>
+    <div class="container">
+        <h1>Generator Surat Kelulusan</h1>
+        <p style="text-align: center;">Pilih template dan upload data Excel/CSV untuk membuat PDF SKHU.</p>
         
-        <label>CSV Data File:</label><br>
-        <input type="file" id="data_file" accept=".csv" required><br><br>
-        
-        <label>Font Path (e.g., C:/Windows/Fonts/arial.ttf):</label><br>
-        <input type="text" id="font_path" value="arial.ttf" required><br><br>
-        
-        <label>Font Size:</label><br>
-        <input type="number" id="font_size" value="30"><br><br>
-        
-        <label>Name X Coordinate:</label><br>
-        <input type="number" id="name_x" value="100"><br><br>
-        
-        <label>Name Y Coordinate:</label><br>
-        <input type="number" id="name_y" value="100"><br><br>
-        
-        <button type="submit">Generate & Download</button>
-    </form>
+        <form id="docForm">
+            <div class="form-group">
+                <label>Pilih Template:</label>
+                <select id="template" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">Memuat template...</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Tanggal Ujian:</label>
+                <input type="date" id="tanggal_ujian" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            </div>
+
+            <div class="form-group">
+                <label>Tanggal Pengesahan:</label>
+                <input type="date" id="tanggal_pengesahan" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            </div>
+            
+            <div class="form-group">
+                <label>Data Excel atau CSV:</label>
+                <input type="file" id="data_file" accept=".csv,.xlsx,.xls" required>
+                <div class="hint">Pastikan nama kolom sesuai dengan placeholder di Word.</div>
+            </div>
+
+            <button type="submit">GENERATE PDF SKHU</button>
+        </form>
+    </div>
 
     <script>
-        document.getElementById('certForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData();
-            formData.append('template', document.getElementById('template').files[0]);
-            formData.append('data_file', document.getElementById('data_file').files[0]);
-            formData.append('font_path', document.getElementById('font_path').value);
-            formData.append('font_size', document.getElementById('font_size').value);
-            formData.append('name_x', document.getElementById('name_x').value);
-            formData.append('name_y', document.getElementById('name_y').value);
-
-            const response = await fetch('/generate', {
-                method: 'POST',
-                body: formData
+        // Fetch templates on load
+        fetch('/templates')
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('template');
+                select.innerHTML = '<option value="">-- Pilih Template --</option>';
+                data.forEach(t => {
+                    select.innerHTML += `<option value="${t}">${t}</option>`;
+                });
             });
 
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'certificates.zip';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            } else {
-                alert('Error generating certificates');
+        document.getElementById('docForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Sedang Memproses PDF...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('template_name', document.getElementById('template').value);
+            formData.append('tanggal_ujian', document.getElementById('tanggal_ujian').value);
+            formData.append('tanggal_pengesahan', document.getElementById('tanggal_pengesahan').value);
+            formData.append('data_file', document.getElementById('data_file').files[0]);
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    
+                    // Safely get filename from response header
+                    const filename = response.headers.get('X-Filename') || 'SKHU_LENGKAP.pdf';
+                    a.download = filename;
+                    
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                } else {
+                    alert('Gagal membuat PDF. Periksa apakah uvicorn berjalan dan format file benar.');
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan: ' + err.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
         };
     </script>
