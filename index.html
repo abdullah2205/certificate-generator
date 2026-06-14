@@ -31,6 +31,16 @@
             </div>
             
             <div class="form-group">
+                <label>Tanggal Ujian:</label>
+                <input type="date" id="tanggal_ujian" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            </div>
+
+            <div class="form-group">
+                <label>Tanggal Pengesahan:</label>
+                <input type="date" id="tanggal_pengesahan" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+            </div>
+            
+            <div class="form-group">
                 <label>Data Excel atau CSV:</label>
                 <input type="file" id="data_file" accept=".csv,.xlsx,.xls" required>
                 <div class="hint">Pastikan nama kolom sesuai dengan placeholder di Word.</div>
@@ -61,6 +71,8 @@
 
             const formData = new FormData();
             formData.append('template_name', document.getElementById('template').value);
+            formData.append('tanggal_ujian', document.getElementById('tanggal_ujian').value);
+            formData.append('tanggal_pengesahan', document.getElementById('tanggal_pengesahan').value);
             formData.append('data_file', document.getElementById('data_file').files[0]);
 
             try {
@@ -74,7 +86,15 @@
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'SKHU_LENGKAP.pdf';
+                    
+                    // Safely get filename from response header
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = 'SKHU_LENGKAP.pdf';
+                    if (contentDisposition && contentDisposition.includes('filename=')) {
+                        filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
+                    }
+                    a.download = filename;
+                    
                     document.body.appendChild(a);
                     a.click();
                     a.remove();

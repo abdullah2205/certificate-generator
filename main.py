@@ -7,6 +7,17 @@ from generator import generate_from_word
 from pypdf import PdfWriter
 from docx2pdf import convert
 import pythoncom
+import locale
+
+# Set locale to Indonesian
+try:
+    locale.setlocale(locale.LC_TIME, 'id_ID.UTF-8')
+except locale.Error:
+    try:
+        # Windows fallback
+        locale.setlocale(locale.LC_TIME, 'Indonesian_Indonesia.1252')
+    except locale.Error:
+        print("Warning: Could not set Indonesian locale. Dates may be in English.")
 
 app = FastAPI()
 
@@ -30,10 +41,19 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 @app.post("/generate")
 async def generate_documents(
     template_name: str = Form(...),
+    tanggal_ujian: str = Form(...),
+    tanggal_pengesahan: str = Form(...),
     data_file: UploadFile = File(...)
 ):
     # Initialize COM for docx2pdf if on Windows
     pythoncom.CoInitialize()
+    
+    # Format tanggal
+    tgl_ujian_obj = datetime.strptime(tanggal_ujian, "%Y-%m-%d")
+    tanggal_ujian_str = tgl_ujian_obj.strftime("%d %B %Y")
+    
+    tgl_pengesahan_obj = datetime.strptime(tanggal_pengesahan, "%Y-%m-%d")
+    tanggal_pengesahan_str = tgl_pengesahan_obj.strftime("%d %B %Y")
     
     template_path = os.path.join(TEMPLATE_DIR, template_name)
     data_path = os.path.join(UPLOAD_DIR, data_file.filename)
@@ -57,6 +77,10 @@ async def generate_documents(
     for index, row in df.iterrows():
         # Konversi baris ke dict dan bersihkan spasi
         data = {str(k): str(v).strip() for k, v in row.to_dict().items()}
+        
+        # Add tanggal to data
+        data['tanggal_ujian'] = tanggal_ujian_str
+        data['tanggal_pengesahan'] = tanggal_pengesahan_str
         
         # Scores calculation
         score_columns = [
@@ -83,7 +107,7 @@ async def generate_documents(
         
         # Dates and names
         if not data.get('tanggal_pembuatan'):
-            data['tanggal_pembuatan'] = datetime.now().strftime("%d %B %Y")
+            data['tanggal_pembuatan'] = tanggal_pengesahan_str
 
         # Penggabungan tempat dan tanggal lahir
         tl = data.get('tempat_lahir', '')
@@ -111,8 +135,14 @@ async def generate_documents(
             print(f"Gagal mengonversi {name}: {e}")
             
     # Simpan hasil gabungan PDF
-    final_pdf_path = os.path.join(OUTPUT_DIR, "semua_surat.pdf")
+    # Format: Nama Template (Capitalized) - Tanggal Pengesahan.pdf
+    base_name = os.path.splitext(template_name)[0]
+    formatted_name = base_name.replace('-', ' ').title()
+    final_filename = f"{formatted_name} - {tanggal_pengesahan_str}.pdf"
+    final_pdf_path = os.path.join(OUTPUT_DIR, final_filename)
     merger.write(final_pdf_path)
     merger.close()
             
-    return FileResponse(final_pdf_path, media_type='application/pdf', filename='semua_surat.pdf')
+    # Use standard response with filename
+    from fastapi.responses import FileResponse
+    return FileResponse(final_pdf_path, media_type='application/pdf', filename=final_filename)
